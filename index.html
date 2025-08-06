@@ -3,378 +3,322 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Click Work</title>
+    <title>Admin Panel - Link Click Work</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #e0f7fa; /* হালকা বুলু ব্যাকগ্রাউন্ড */
+            background-color: #f0f2f5;
             margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+            padding: 20px;
         }
-
         .container {
-            width: 90%;
-            max-width: 450px;
+            max-width: 800px;
+            margin: 0 auto;
             background-color: #fff;
             padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-
-        header {
-            margin-bottom: 20px;
+        h1, h2, h3 {
+            color: #333;
         }
-
-        .main-title {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: white;
-            background-color: #ff3333;
-            padding: 10px 20px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        #datetime {
-            font-size: 0.9em;
-            color: #666;
-            margin-bottom: 15px;
-        }
-
-        .card {
+        #login-form, #admin-dashboard {
+            padding: 20px;
             border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 15px;
+            border-radius: 8px;
             margin-bottom: 20px;
         }
-
-        .card-title {
-            font-size: 1.5em;
-            background-color: #ffcc66;
-            padding: 8px 15px;
-            border-radius: 5px;
-            display: inline-block;
-            color: #333;
-            font-weight: bold;
-        }
-
-        .user-list-container {
-            margin-top: 15px;
-        }
-
-        .user-item {
-            display: block;
-            border: 2px solid #ff6699;
-            border-radius: 5px;
-            padding: 10px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            background-color: #fff;
-            transition: background-color 0.3s;
-            text-decoration: none;
-            color: #333;
-        }
-
-        .user-item:hover {
-            background-color: #f9f9f9;
-        }
-
-        .dashboard-table {
+        input[type="password"], input[type="text"], input[type="number"], select {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        .dashboard-table th, .dashboard-table td {
-            border: 1px solid #ff6699;
             padding: 10px;
-            text-align: center;
-        }
-
-        .dashboard-table th {
-            background-color: #f2f2f2;
-        }
-
-        .monthly-revenue-section {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e6ffed;
-            border-radius: 10px;
-        }
-
-        .withdraw-btn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            margin-top: 10px;
-        }
-
-        .withdraw-btn:hover {
-            background-color: #45a049;
-        }
-
-        .withdraw-form-section {
-            text-align: left;
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-        }
-
-        .withdraw-form-section label,
-        .withdraw-form-section input,
-        .withdraw-form-section select {
-            display: block;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .withdraw-form-section input,
-        .withdraw-form-section select {
-            padding: 8px;
+            margin: 8px 0;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-
-        .submit-btn {
-            background-color: #008CBA;
+        button {
+            background-color: #4CAF50;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 1em;
             width: 100%;
+            font-size: 16px;
             margin-top: 10px;
         }
-
-        .submit-btn:hover {
-            background-color: #007bb5;
+        button:hover {
+            background-color: #45a049;
         }
-
-        .developer-info {
-            font-size: 0.8em;
-            color: #666;
+        .user-list-table, .request-list-table {
+            width: 100%;
+            border-collapse: collapse;
             margin-top: 20px;
         }
-
-        /* পেজ ম্যানেজমেন্টের জন্য ডিসপ্লে ক্লাস */
-        .page {
-            display: none;
+        .user-list-table th, .user-list-table td,
+        .request-list-table th, .request-list-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
         }
-        .page.active {
-            display: block;
+        .user-list-table th, .request-list-table th {
+            background-color: #f2f2f2;
+        }
+        .edit-btn, .approve-btn {
+            background-color: #008CBA;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            width: auto;
+        }
+        .edit-btn:hover, .approve-btn:hover {
+            background-color: #007bb5;
+        }
+        #cancel-edit-btn {
+            background-color: #f44336;
+        }
+        #cancel-edit-btn:hover {
+            background-color: #da190b;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1 class="main-title">LINK CLICK WORK</h1>
-            <p id="datetime"></p>
-        </header>
+        <h1>Admin Panel</h1>
 
-        <div id="user-list-page" class="page active">
-            <main>
-                <div class="card">
-                    <h2 class="card-title">User List</h2>
-                    <div class="user-list-container" id="user-list">
-                        </div>
-                </div>
-            </main>
+        <div id="login-form">
+            <h3>Login</h3>
+            <label for="admin-pass">Password:</label>
+            <input type="password" id="admin-pass" placeholder="Enter password">
+            <button id="login-btn">Login</button>
         </div>
 
-        <div id="dashboard-page" class="page">
-            <main>
-                <div class="card">
-                    <h2 class="card-title">Dashboard</h2>
-                    <table class="dashboard-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Click</th>
-                                <th>CPM</th>
-                                <th>Revenue</th>
-                            </tr>
-                        </thead>
-                        <tbody id="data-table-body">
-                            </tbody>
-                    </table>
-                </div>
+        <div id="admin-dashboard" style="display: none;">
+            <h2>User Management</h2>
+            <div id="user-management-section">
+                <h3>Add New User</h3>
+                <label for="new-user-name">User Name:</label>
+                <input type="text" id="new-user-name" placeholder="Enter new user name">
+                <button id="add-user-btn">Add User</button>
+                
+                <h3>All Users</h3>
+                <table class="user-list-table">
+                    <thead>
+                        <tr>
+                            <th>User Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-list-body">
+                        </tbody>
+                </table>
+            </div>
 
-                <div id="monthly-revenue-container" class="monthly-revenue-section" style="display: none;">
-                    <p>Monthly Total Revenue: <span id="monthly-revenue-amount"></span></p>
-                    <button id="withdraw-button" class="withdraw-btn">Withdraw</button>
-                </div>
+            <hr>
 
-                <div id="withdraw-form-container" class="withdraw-form-section" style="display: none;">
-                    <h3>Withdrawal Form</h3>
-                    <label for="payment-gateway">Select Payment Gateway:</label>
-                    <select id="payment-gateway">
-                        <option value="bKash">bKash</option>
-                        <option value="nagad">Nagad</option>
-                        <option value="mobile-recharge">Mobile Recharge</option>
-                    </select>
+            <h2>Edit User Data</h2>
+            <div id="edit-user-data-section" style="display: none;">
+                <h3>Editing User: <span id="editing-user-name"></span></h3>
+                <label for="data-date">Date:</label>
+                <input type="text" id="data-date" placeholder="e.g., 01/08/2025">
+                <label for="data-click">Click:</label>
+                <input type="number" id="data-click" placeholder="e.g., 20">
+                <label for="data-cpm">CPM:</label>
+                <input type="number" id="data-cpm" placeholder="e.g., 0.98" step="0.01">
+                <label for="data-revenue">Revenue:</label>
+                <input type="number" id="data-revenue" placeholder="e.g., 0.32" step="0.01">
+                <button id="add-data-btn">Add Data</button>
+                <button id="cancel-edit-btn">Cancel</button>
+            </div>
 
-                    <label for="withdraw-amount">Withdrawal Amount ($):</label>
-                    <input type="number" id="withdraw-amount" placeholder="e.g., 0.50">
+            <hr>
 
-                    <label for="mobile-number">Mobile Number:</label>
-                    <input type="text" id="mobile-number" placeholder="e.g., 017xxxxxxxx">
-
-                    <button id="submit-withdraw" class="submit-btn">Submit</button>
-                </div>
-            </main>
+            <h2>Withdrawal Requests</h2>
+            <table class="request-list-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Amount</th>
+                        <th>Gateway</th>
+                        <th>Mobile No.</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="request-list-body">
+                    </tbody>
+            </table>
         </div>
-        
-        <footer>
-            <p class="developer-info">Developer By: TAREK</p>
-        </footer>
     </div>
 
     <script>
+        // আপনার SheetDB API URL এখানে দেওয়া হয়েছে
         const SHEETSU_API_URL = "https://sheetdb.io/api/v1/w4owt0ziirg5k"; 
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const updateDateTime = () => {
-                const now = new Date();
-                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-                document.getElementById('datetime').textContent = now.toLocaleDateString('bn-BD', options);
-            };
+        // অ্যাডমিন পাসওয়ার্ড
+        const ADMIN_PASSWORD = "admin123";
 
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
+        let appData = {
+            users: {},
+            withdrawals: []
+        };
 
-            const loadData = async () => {
-                try {
-                    const usersResponse = await fetch(`${SHEETSU_API_URL}/users`);
-                    const usersData = await usersResponse.json();
-                    
-                    if (document.getElementById('user-list-page').classList.contains('active')) {
-                        populateUserList(usersData);
-                    }
-                } catch (error) {
-                    console.error("Error fetching data:", error);
-                    alert("Failed to load data.");
-                }
-            };
+        // লগইন ফাংশন
+        document.getElementById('login-btn').addEventListener('click', () => {
+            const password = document.getElementById('admin-pass').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('admin-dashboard').style.display = 'block';
+                fetchDataAndRender();
+            } else {
+                alert('Invalid Password');
+            }
+        });
 
-            const populateUserList = (usersData) => {
-                const userListContainer = document.getElementById('user-list');
-                if (userListContainer) {
-                    userListContainer.innerHTML = '';
-                    usersData.forEach(user => {
-                        const userItem = document.createElement('a');
-                        userItem.className = 'user-item';
-                        userItem.textContent = user.name;
-                        userItem.addEventListener('click', () => {
-                            const userId = user.userId;
-                            loadUserDashboard(userId, usersData);
-                            document.getElementById('user-list-page').classList.remove('active');
-                            document.getElementById('dashboard-page').classList.add('active');
-                        });
-                        userListContainer.appendChild(userItem);
-                    });
-                }
-            };
-
-            const loadUserDashboard = (userId, usersData) => {
-                const user = usersData.find(u => u.userId === userId);
-                if (!user) {
-                    alert("User not found!");
-                    return;
-                }
-
-                const userSpecificData = user.data ? JSON.parse(user.data) : [];
-                const dataTableBody = document.getElementById('data-table-body');
-                if (dataTableBody) {
-                    dataTableBody.innerHTML = '';
-                    userSpecificData.forEach(item => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${item.date}</td>
-                            <td>${item.click}</td>
-                            <td>${item.cpm}</td>
-                            <td>${item.revenue}$</td>
-                        `;
-                        dataTableBody.appendChild(row);
-                    });
-                    
-                    const totalRevenue = userSpecificData.reduce((sum, item) => sum + item.revenue, 0);
-                    document.getElementById('monthly-revenue-amount').textContent = totalRevenue.toFixed(2) + '$';
-
-                    checkWithdrawalAvailability(totalRevenue, userId);
-                }
-            };
-
-            const checkWithdrawalAvailability = async (totalRevenue, userId) => {
-                const now = new Date();
-                const day = now.getDate();
-                const isWithdrawalPeriod = day >= 1 && day <= 3;
+        // SheetDB থেকে ডেটা Fetch করার ফাংশন
+        const fetchDataAndRender = async () => {
+            try {
+                const usersResponse = await fetch(`${SHEETSU_API_URL}/users`);
+                const withdrawalsResponse = await fetch(`${SHEETSU_API_URL}/withdrawals`);
                 
-                const monthlyRevenueContainer = document.getElementById('monthly-revenue-container');
-                if (monthlyRevenueContainer) {
-                    const isMonthEnd = day === 30;
-                    if (isMonthEnd) {
-                        monthlyRevenueContainer.style.display = 'block';
-                    }
+                const usersData = await usersResponse.json();
+                const withdrawalsData = await withdrawalsResponse.json();
+                
+                appData.users = usersData.reduce((acc, user) => {
+                    acc[user.userId] = user;
+                    return acc;
+                }, {});
+                
+                appData.withdrawals = withdrawalsData;
 
-                    const withdrawButton = document.getElementById('withdraw-button');
-                    const withdrawForm = document.getElementById('withdraw-form-container');
+                renderAdminPanel();
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                alert("Failed to fetch data from SheetDB. Please check your API URL and internet connection.");
+            }
+        };
 
-                    if (isWithdrawalPeriod && totalRevenue > 0) {
-                        withdrawButton.style.display = 'block';
-                    } else {
-                        withdrawButton.style.display = 'none';
-                    }
+        const renderAdminPanel = () => {
+            renderUserList();
+            renderWithdrawalRequests();
+        };
 
-                    withdrawButton.addEventListener('click', () => {
-                        withdrawForm.style.display = 'block';
-                    });
+        const renderUserList = () => {
+            const userListBody = document.getElementById('user-list-body');
+            userListBody.innerHTML = '';
+            for (const userId in appData.users) {
+                const user = appData.users[userId];
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editUserData('${userId}')">Edit</button>
+                    </td>
+                `;
+                userListBody.appendChild(row);
+            }
+        };
 
-                    const submitButton = document.getElementById('submit-withdraw');
-                    if (submitButton) {
-                        submitButton.addEventListener('click', async () => {
-                            const gateway = document.getElementById('payment-gateway').value;
-                            const amount = parseFloat(document.getElementById('withdraw-amount').value);
-                            const mobile = document.getElementById('mobile-number').value;
+        const renderWithdrawalRequests = () => {
+            const requestListBody = document.getElementById('request-list-body');
+            requestListBody.innerHTML = '';
+            appData.withdrawals.forEach(request => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${appData.users[request.userId] ? appData.users[request.userId].name : 'N/A'}</td>
+                    <td>${request.amount}$</td>
+                    <td>${request.gateway}</td>
+                    <td>${request.mobile}</td>
+                    <td>${request.status}</td>
+                    <td>
+                        <button class="approve-btn" onclick="approveWithdrawal('${request.userId}', '${request.date}')">Approve</button>
+                    </td>
+                `;
+                requestListBody.appendChild(row);
+            });
+        };
 
-                            const response = await fetch(`${SHEETSU_API_URL}/withdrawals`, {
-                                method: 'POST',
-                                body: JSON.stringify({
-                                    userId: userId,
-                                    amount: amount,
-                                    gateway: gateway,
-                                    mobile: mobile,
-                                    status: 'Pending',
-                                    date: now.toISOString().slice(0, 10)
-                                }),
-                                headers: { 'Content-Type': 'application/json' }
-                            });
+        const editUserData = (userId) => {
+            document.getElementById('edit-user-data-section').style.display = 'block';
+            document.getElementById('editing-user-name').textContent = appData.users[userId].name;
+            document.getElementById('add-data-btn').onclick = () => addDataToUser(userId);
+        };
 
-                            if (response.ok) {
-                                alert('Withdrawal request submitted successfully!');
-                                withdrawForm.style.display = 'none';
-                            } else {
-                                alert('Failed to submit withdrawal request.');
-                            }
-                        });
-                    }
+        const addDataToUser = async (userId) => {
+            const date = document.getElementById('data-date').value;
+            const click = parseFloat(document.getElementById('data-click').value);
+            const cpm = parseFloat(document.getElementById('data-cpm').value);
+            const revenue = parseFloat(document.getElementById('data-revenue').value);
+            
+            if (date && !isNaN(click) && !isNaN(cpm) && !isNaN(revenue)) {
+                const existingData = appData.users[userId];
+                existingData.data = existingData.data ? existingData.data : [];
+                existingData.data.push({ date, click, cpm, revenue });
+
+                const updatedUser = {
+                    ...existingData,
+                    data: JSON.stringify(existingData.data)
+                };
+
+                const response = await fetch(`${SHEETSU_API_URL}/users/userId/${userId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(updatedUser),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    alert('Data added successfully!');
+                    fetchDataAndRender();
+                } else {
+                    alert('Failed to update data.');
                 }
-            };
+            } else {
+                alert('Please fill all fields with valid data.');
+            }
+        };
 
-            loadData();
+        document.getElementById('add-user-btn').addEventListener('click', async () => {
+            const userName = document.getElementById('new-user-name').value.trim();
+            if (userName) {
+                const userId = 'user' + (Object.keys(appData.users).length + 1);
+                const newUser = {
+                    userId: userId,
+                    name: userName,
+                    data: '[]' // SheetDB-তে JSON string হিসেবে সেভ হবে
+                };
+
+                const response = await fetch(`${SHEETSU_API_URL}/users`, {
+                    method: 'POST',
+                    body: JSON.stringify(newUser),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    alert('User added successfully!');
+                    fetchDataAndRender();
+                } else {
+                    alert('Failed to add user.');
+                }
+            }
+        });
+
+        const approveWithdrawal = async (userId, date) => {
+            const response = await fetch(`${SHEETSU_API_URL}/withdrawals/userId/${userId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert('Withdrawal approved and removed from list.');
+                fetchDataAndRender();
+            } else {
+                alert('Failed to approve withdrawal.');
+            }
+        };
+
+        document.getElementById('cancel-edit-btn').addEventListener('click', () => {
+            document.getElementById('edit-user-data-section').style.display = 'none';
         });
     </script>
 </body>
