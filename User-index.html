@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Click Work</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e0f7fa; /* হালকা বুলু ব্যাকগ্রাউন্ড */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 450px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        header {
+            margin-bottom: 20px;
+        }
+
+        .main-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: white;
+            background-color: #ff3333;
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        #datetime {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            background-color: #ffcc66;
+            padding: 8px 15px;
+            border-radius: 5px;
+            display: inline-block;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .user-list-container {
+            margin-top: 15px;
+        }
+
+        .user-item {
+            display: block;
+            border: 2px solid #ff6699;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .user-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .dashboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .dashboard-table th, .dashboard-table td {
+            border: 1px solid #ff6699;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .dashboard-table th {
+            background-color: #f2f2f2;
+        }
+
+        .monthly-revenue-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e6ffed;
+            border-radius: 10px;
+        }
+
+        .withdraw-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+
+        .withdraw-btn:hover {
+            background-color: #45a049;
+        }
+
+        .withdraw-form-section {
+            text-align: left;
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+
+        .withdraw-form-section label,
+        .withdraw-form-section input,
+        .withdraw-form-section select {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .withdraw-form-section input,
+        .withdraw-form-section select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .submit-btn {
+            background-color: #008CBA;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background-color: #007bb5;
+        }
+
+        .developer-info {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 20px;
+        }
+
+        /* পেজ ম্যানেজমেন্টের জন্য ডিসপ্লে ক্লাস */
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="main-title">LINK CLICK WORK</h1>
+            <p id="datetime"></p>
+        </header>
+
+        <div id="user-list-page" class="page active">
+            <main>
+                <div class="card">
+                    <h2 class="card-title">User List</h2>
+                    <div class="user-list-container" id="user-list">
+                        </div>
+                </div>
+            </main>
+        </div>
+
+        <div id="dashboard-page" class="page">
+            <main>
+                <div class="card">
+                    <h2 class="card-title">Dashboard</h2>
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Click</th>
+                                <th>CPM</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body">
+                            </tbody>
+                    </table>
+                </div>
+
+                <div id="monthly-revenue-container" class="monthly-revenue-section" style="display: none;">
+                    <p>Monthly Total Revenue: <span id="monthly-revenue-amount"></span></p>
+                    <button id="withdraw-button" class="withdraw-btn">Withdraw</button>
+                </div>
+
+                <div id="withdraw-form-container" class="withdraw-form-section" style="display: none;">
+                    <h3>Withdrawal Form</h3>
+                    <label for="payment-gateway">Select Payment Gateway:</label>
+                    <select id="payment-gateway">
+                        <option value="bKash">bKash</option>
+                        <option value="nagad">Nagad</option>
+                        <option value="mobile-recharge">Mobile Recharge</option>
+                    </select>
+
+                    <label for="withdraw-amount">Withdrawal Amount ($):</label>
+                    <input type="number" id="withdraw-amount" placeholder="e.g., 0.50">
+
+                    <label for="mobile-number">Mobile Number:</label>
+                    <input type="text" id="mobile-number" placeholder="e.g., 017xxxxxxxx">
+
+                    <button id="submit-withdraw" class="submit-btn">Submit</button>
+                </div>
+            </main>
+        </div>
+        
+        <footer>
+            <p class="developer-info">Developer By: TAREK</p>
+        </footer>
+    </div>
+
+    <script>
+        const SHEETSU_API_URL = "https://sheetdb.io/api/v1/k8tzqlcui8jh9"; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const updateDateTime = () => {
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                document.getElementById('datetime').textContent = now.toLocaleDateString('bn-BD', options);
+            };
+
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+
+            const loadData = async () => {
+                try {
+                    const usersResponse = await fetch(`${SHEETSU_API_URL}/users`);
+                    const usersData = await usersResponse.json();
+                    
+                    if (document.getElementById('user-list-page').classList.contains('active')) {
+                        populateUserList(usersData);
+                    }
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                    alert("Failed to load data.");
+                }
+            };
+
+            const populateUserList = (usersData) => {
+                const userListContainer = document.getElementById('user-list');
+                if (userListContainer) {
+                    userListContainer.innerHTML = '';
+                    usersData.forEach(user => {
+                        const userItem = document.createElement('a');
+                        userItem.className = 'user-item';
+                        userItem.textContent = user.name;
+                        userItem.addEventListener('click', () => {
+                            const userId = user.userId;
+                            loadUserDashboard(userId, usersData);
+                            document.getElementById('user-list-page').classList.remove('active');
+                            document.getElementById('dashboard-page').classList.add('active');
+                        });
+                        userListContainer.appendChild(userItem);
+                    });
+                }
+            };
+
+            const loadUserDashboard = (userId, usersData) => {
+                const user = usersData.find(u => u.userId === userId);
+                if (!user) {
+                    alert("User not found!");
+                    return;
+                }
+
+                const userSpecificData = user.data ? JSON.parse(user.data) : [];
+                const dataTableBody = document.getElementById('data-table-body');
+                if (dataTableBody) {
+                    dataTableBody.innerHTML = '';
+                    userSpecificData.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.date}</td>
+                            <td>${item.click}</td>
+                            <td>${item.cpm}</td>
+                            <td>${item.revenue}$</td>
+                        `;
+                        dataTableBody.appendChild(row);
+                    });
+                    
+                    const totalRevenue = userSpecificData.reduce((sum, item) => sum + item.revenue, 0);
+                    document.getElementById('monthly-revenue-amount').textContent = totalRevenue.toFixed(2) + '$';
+
+                    checkWithdrawalAvailability(totalRevenue, userId);
+                }
+            };
+
+            const checkWithdrawalAvailability = async (totalRevenue, userId) => {
+                const now = new Date();
+                const day = now.getDate();
+                const isWithdrawalPeriod = day >= 1 && day <= 3;
+                
+                const monthlyRevenueContainer = document.getElementById('monthly-revenue-container');
+                if (monthlyRevenueContainer) {
+                    const isMonthEnd = day === 30;
+                    if (isMonthEnd) {
+                        monthlyRevenueContainer.style.display = 'block';
+                    }
+
+                    const withdrawButton = document.getElementById('withdraw-button');
+                    const withdrawForm = document.getElementById('withdraw-form-container');
+
+                    if (isWithdrawalPeriod && totalRevenue > 0) {
+                        withdrawButton.style.display = 'block';
+                    } else {
+                        withdrawButton.style.display = 'none';
+                    }
+
+                    withdrawButton.addEventListener('click', () => {
+                        withdrawForm.style.display = 'block';
+                    });
+
+                    const submitButton = document.getElementById('submit-withdraw');
+                    if (submitButton) {
+                        submitButton.addEventListener('click', async () => {
+                            const gateway = document.getElementById('payment-gateway').value;
+                            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+                            const mobile = document.getElementById('mobile-number').value;
+
+                            const response = await fetch(`${SHEETSU_API_URL}/withdrawals`, {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    userId: userId,
+                                    amount: amount,
+                                    gateway: gateway,
+                                    mobile: mobile,
+                                    status: 'Pending',
+                                    date: now.toISOString().slice(0, 10)
+                                }),
+                                headers: { 'Content-Type': 'application/json' }
+                            });
+
+                            if (response.ok) {
+                                alert('Withdrawal request submitted successfully!');
+                                withdrawForm.style.display = 'none';
+                            } else {
+                                alert('Failed to submit withdrawal request.');
+                            }
+                        });
+                    }
+                }
+            };
+
+            loadData();
+        });
+    </script>
+</body>
+</html>
