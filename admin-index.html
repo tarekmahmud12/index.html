@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Link Click Work</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        #login-form, #admin-dashboard {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        input[type="password"], input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .user-list-table, .request-list-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .user-list-table th, .user-list-table td,
+        .request-list-table th, .request-list-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .user-list-table th, .request-list-table th {
+            background-color: #f2f2f2;
+        }
+        .edit-btn, .approve-btn {
+            background-color: #008CBA;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            width: auto;
+        }
+        .edit-btn:hover, .approve-btn:hover {
+            background-color: #007bb5;
+        }
+        #cancel-edit-btn {
+            background-color: #f44336;
+        }
+        #cancel-edit-btn:hover {
+            background-color: #da190b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Panel</h1>
+
+        <div id="login-form">
+            <h3>Login</h3>
+            <label for="admin-pass">Password:</label>
+            <input type="password" id="admin-pass" placeholder="Enter password">
+            <button id="login-btn">Login</button>
+        </div>
+
+        <div id="admin-dashboard" style="display: none;">
+            <h2>User Management</h2>
+            <div id="user-management-section">
+                <h3>Add New User</h3>
+                <label for="new-user-name">User Name:</label>
+                <input type="text" id="new-user-name" placeholder="Enter new user name">
+                <button id="add-user-btn">Add User</button>
+                
+                <h3>All Users</h3>
+                <table class="user-list-table">
+                    <thead>
+                        <tr>
+                            <th>User Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-list-body">
+                        </tbody>
+                </table>
+            </div>
+
+            <hr>
+
+            <h2>Edit User Data</h2>
+            <div id="edit-user-data-section" style="display: none;">
+                <h3>Editing User: <span id="editing-user-name"></span></h3>
+                <label for="data-date">Date:</label>
+                <input type="text" id="data-date" placeholder="e.g., 01/08/2025">
+                <label for="data-click">Click:</label>
+                <input type="number" id="data-click" placeholder="e.g., 20">
+                <label for="data-cpm">CPM:</label>
+                <input type="number" id="data-cpm" placeholder="e.g., 0.98" step="0.01">
+                <label for="data-revenue">Revenue:</label>
+                <input type="number" id="data-revenue" placeholder="e.g., 0.32" step="0.01">
+                <button id="add-data-btn">Add Data</button>
+                <button id="cancel-edit-btn">Cancel</button>
+            </div>
+
+            <hr>
+
+            <h2>Withdrawal Requests</h2>
+            <table class="request-list-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Amount</th>
+                        <th>Gateway</th>
+                        <th>Mobile No.</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="request-list-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // আপনার SheetDB API URL এখানে দেওয়া হয়েছে
+        const SHEETSU_API_URL = "https://sheetdb.io/api/v1/k8tzqlcui8jh9"; 
+
+        // অ্যাডমিন পাসওয়ার্ড
+        const ADMIN_PASSWORD = "admin123";
+
+        let appData = {
+            users: {},
+            withdrawals: []
+        };
+
+        // লগইন ফাংশন
+        document.getElementById('login-btn').addEventListener('click', () => {
+            const password = document.getElementById('admin-pass').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('admin-dashboard').style.display = 'block';
+                fetchDataAndRender();
+            } else {
+                alert('Invalid Password');
+            }
+        });
+
+        // SheetDB থেকে ডেটা Fetch করার ফাংশন
+        const fetchDataAndRender = async () => {
+            try {
+                const usersResponse = await fetch(`${SHEETSU_API_URL}/users`);
+                const withdrawalsResponse = await fetch(`${SHEETSU_API_URL}/withdrawals`);
+                
+                const usersData = await usersResponse.json();
+                const withdrawalsData = await withdrawalsResponse.json();
+                
+                appData.users = usersData.reduce((acc, user) => {
+                    acc[user.userId] = user;
+                    return acc;
+                }, {});
+                
+                appData.withdrawals = withdrawalsData;
+
+                renderAdminPanel();
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                alert("Failed to fetch data from SheetDB. Please check your API URL and internet connection.");
+            }
+        };
+
+        const renderAdminPanel = () => {
+            renderUserList();
+            renderWithdrawalRequests();
+        };
+
+        const renderUserList = () => {
+            const userListBody = document.getElementById('user-list-body');
+            userListBody.innerHTML = '';
+            for (const userId in appData.users) {
+                const user = appData.users[userId];
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editUserData('${userId}')">Edit</button>
+                    </td>
+                `;
+                userListBody.appendChild(row);
+            }
+        };
+
+        const renderWithdrawalRequests = () => {
+            const requestListBody = document.getElementById('request-list-body');
+            requestListBody.innerHTML = '';
+            appData.withdrawals.forEach(request => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${appData.users[request.userId] ? appData.users[request.userId].name : 'N/A'}</td>
+                    <td>${request.amount}$</td>
+                    <td>${request.gateway}</td>
+                    <td>${request.mobile}</td>
+                    <td>${request.status}</td>
+                    <td>
+                        <button class="approve-btn" onclick="approveWithdrawal('${request.userId}', '${request.date}')">Approve</button>
+                    </td>
+                `;
+                requestListBody.appendChild(row);
+            });
+        };
+
+        const editUserData = (userId) => {
+            document.getElementById('edit-user-data-section').style.display = 'block';
+            document.getElementById('editing-user-name').textContent = appData.users[userId].name;
+            document.getElementById('add-data-btn').onclick = () => addDataToUser(userId);
+        };
+
+        const addDataToUser = async (userId) => {
+            const date = document.getElementById('data-date').value;
+            const click = parseFloat(document.getElementById('data-click').value);
+            const cpm = parseFloat(document.getElementById('data-cpm').value);
+            const revenue = parseFloat(document.getElementById('data-revenue').value);
+            
+            if (date && !isNaN(click) && !isNaN(cpm) && !isNaN(revenue)) {
+                const existingData = appData.users[userId];
+                existingData.data = existingData.data ? existingData.data : [];
+                existingData.data.push({ date, click, cpm, revenue });
+
+                const updatedUser = {
+                    ...existingData,
+                    data: JSON.stringify(existingData.data)
+                };
+
+                const response = await fetch(`${SHEETSU_API_URL}/users/userId/${userId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(updatedUser),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    alert('Data added successfully!');
+                    fetchDataAndRender();
+                } else {
+                    alert('Failed to update data.');
+                }
+            } else {
+                alert('Please fill all fields with valid data.');
+            }
+        };
+
+        document.getElementById('add-user-btn').addEventListener('click', async () => {
+            const userName = document.getElementById('new-user-name').value.trim();
+            if (userName) {
+                const userId = 'user' + (Object.keys(appData.users).length + 1);
+                const newUser = {
+                    userId: userId,
+                    name: userName,
+                    data: '[]' // SheetDB-তে JSON string হিসেবে সেভ হবে
+                };
+
+                const response = await fetch(`${SHEETSU_API_URL}/users`, {
+                    method: 'POST',
+                    body: JSON.stringify(newUser),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    alert('User added successfully!');
+                    fetchDataAndRender();
+                } else {
+                    alert('Failed to add user.');
+                }
+            }
+        });
+
+        const approveWithdrawal = async (userId, date) => {
+            const response = await fetch(`${SHEETSU_API_URL}/withdrawals/userId/${userId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert('Withdrawal approved and removed from list.');
+                fetchDataAndRender();
+            } else {
+                alert('Failed to approve withdrawal.');
+            }
+        };
+
+        document.getElementById('cancel-edit-btn').addEventListener('click', () => {
+            document.getElementById('edit-user-data-section').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
