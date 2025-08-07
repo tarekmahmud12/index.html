@@ -85,6 +85,31 @@
     </style>
 </head>
 <body>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set, push, update, remove } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzaSJuMumdlp_ZzjKvatvGm_7XLxq3jFM",
+            authDomain: "link-click-work.firebaseapp.com",
+            projectId: "link-click-work",
+            databaseURL: "https://link-click-work-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            storageBucket: "link-click-work.firebasestorage.app",
+            messagingSenderId: "1098565051426",
+            appId: "1:1098565051426:web:a99ee9186b0f481954167b",
+            measurementId: "G-PLHRG49TXJ"
+        };
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        window.database = database;
+        window.ref = ref;
+        window.onValue = onValue;
+        window.set = set;
+        window.push = push;
+        window.update = update;
+        window.remove = remove;
+    </script>
     <div class="container">
         <h1>Admin Panel</h1>
 
@@ -112,7 +137,7 @@
                         </tr>
                     </thead>
                     <tbody id="user-list-body">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
 
@@ -154,18 +179,13 @@
     </div>
 
     <script>
-        // আপনার SheetDB API URL এখানে দেওয়া হয়েছে
-        const SHEETSU_API_URL = "https://sheetdb.io/api/v1/k8tzqlcui8jh9"; 
-
-        // অ্যাডমিন পাসওয়ার্ড
         const ADMIN_PASSWORD = "admin123";
 
         let appData = {
             users: {},
-            withdrawals: []
+            withdrawals: {}
         };
 
-        // লগইন ফাংশন
         document.getElementById('login-btn').addEventListener('click', () => {
             const password = document.getElementById('admin-pass').value;
             if (password === ADMIN_PASSWORD) {
@@ -177,32 +197,20 @@
             }
         });
 
-        // SheetDB থেকে ডেটা Fetch করার ফাংশন
-        const fetchDataAndRender = async () => {
-            try {
-                const usersResponse = await fetch(`${SHEETSU_API_URL}/users`);
-                const withdrawalsResponse = await fetch(`${SHEETSU_API_URL}/withdrawals`);
-                
-                const usersData = await usersResponse.json();
-                const withdrawalsData = await withdrawalsResponse.json();
-                
-                appData.users = usersData.reduce((acc, user) => {
-                    acc[user.userId] = user;
-                    return acc;
-                }, {});
-                
-                appData.withdrawals = withdrawalsData;
+        const fetchDataAndRender = () => {
+            const usersRef = ref(database, 'users');
+            onValue(usersRef, (snapshot) => {
+                const users = snapshot.val();
+                appData.users = users;
+                renderUserList();
+            });
 
-                renderAdminPanel();
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                alert("Failed to fetch data from SheetDB. Please check your API URL and internet connection.");
-            }
-        };
-
-        const renderAdminPanel = () => {
-            renderUserList();
-            renderWithdrawalRequests();
+            const withdrawalsRef = ref(database, 'withdrawals');
+            onValue(withdrawalsRef, (snapshot) => {
+                const withdrawals = snapshot.val();
+                appData.withdrawals = withdrawals;
+                renderWithdrawalRequests();
+            });
         };
 
         const renderUserList = () => {
@@ -224,20 +232,24 @@
         const renderWithdrawalRequests = () => {
             const requestListBody = document.getElementById('request-list-body');
             requestListBody.innerHTML = '';
-            appData.withdrawals.forEach(request => {
+            for (const withdrawalId in appData.withdrawals) {
+                const request = appData.withdrawals[withdrawalId];
+                const user = Object.values(appData.users).find(u => u.userId === request.userId);
+                const userName = user ? user.name : 'N/A';
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${appData.users[request.userId] ? appData.users[request.userId].name : 'N/A'}</td>
+                    <td>${userName}</td>
                     <td>${request.amount}$</td>
                     <td>${request.gateway}</td>
                     <td>${request.mobile}</td>
                     <td>${request.status}</td>
                     <td>
-                        <button class="approve-btn" onclick="approveWithdrawal('${request.userId}', '${request.date}')">Approve</button>
+                        <button class="approve-btn" onclick="approveWithdrawal('${withdrawalId}')">Approve</button>
                     </td>
                 `;
                 requestListBody.appendChild(row);
-            });
+            }
         };
 
         const editUserData = (userId) => {
@@ -253,27 +265,13 @@
             const revenue = parseFloat(document.getElementById('data-revenue').value);
             
             if (date && !isNaN(click) && !isNaN(cpm) && !isNaN(revenue)) {
-                const existingData = appData.users[userId];
-                existingData.data = existingData.data ? existingData.data : [];
-                existingData.data.push({ date, click, cpm, revenue });
+                const userRef = ref(database, 'users/' + userId);
+                const existingData = appData.users[userId].data || [];
+                existingData.push({ date, click, cpm, revenue });
 
-                const updatedUser = {
-                    ...existingData,
-                    data: JSON.stringify(existingData.data)
-                };
-
-                const response = await fetch(`${SHEETSU_API_URL}/users/userId/${userId}`, {
-                    method: 'PUT',
-                    body: JSON.stringify(updatedUser),
-                    headers: { 'Content-Type': 'application/json' }
-                });
+                await update(userRef, { data: existingData });
                 
-                if (response.ok) {
-                    alert('Data added successfully!');
-                    fetchDataAndRender();
-                } else {
-                    alert('Failed to update data.');
-                }
+                alert('Data added successfully!');
             } else {
                 alert('Please fill all fields with valid data.');
             }
@@ -282,39 +280,25 @@
         document.getElementById('add-user-btn').addEventListener('click', async () => {
             const userName = document.getElementById('new-user-name').value.trim();
             if (userName) {
-                const userId = 'user' + (Object.keys(appData.users).length + 1);
-                const newUser = {
-                    userId: userId,
+                const usersCount = Object.keys(appData.users).length;
+                const newUserId = 'TMK' + (usersCount < 9 ? '0' : '') + (usersCount + 1);
+                const newUserRef = ref(database, 'users/' + newUserId);
+                
+                await set(newUserRef, {
+                    userId: newUserId,
                     name: userName,
-                    data: '[]' // SheetDB-তে JSON string হিসেবে সেভ হবে
-                };
-
-                const response = await fetch(`${SHEETSU_API_URL}/users`, {
-                    method: 'POST',
-                    body: JSON.stringify(newUser),
-                    headers: { 'Content-Type': 'application/json' }
+                    data: []
                 });
 
-                if (response.ok) {
-                    alert('User added successfully!');
-                    fetchDataAndRender();
-                } else {
-                    alert('Failed to add user.');
-                }
+                alert('User added successfully!');
             }
         });
 
-        const approveWithdrawal = async (userId, date) => {
-            const response = await fetch(`${SHEETSU_API_URL}/withdrawals/userId/${userId}`, {
-                method: 'DELETE'
-            });
+        const approveWithdrawal = async (withdrawalId) => {
+            const withdrawalRef = ref(database, 'withdrawals/' + withdrawalId);
+            await remove(withdrawalRef);
 
-            if (response.ok) {
-                alert('Withdrawal approved and removed from list.');
-                fetchDataAndRender();
-            } else {
-                alert('Failed to approve withdrawal.');
-            }
+            alert('Withdrawal approved and removed from list.');
         };
 
         document.getElementById('cancel-edit-btn').addEventListener('click', () => {

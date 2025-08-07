@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #e0f7fa; /* হালকা বুলু ব্যাকগ্রাউন্ড */
+            background-color: #e0f7fa;
             margin: 0;
             padding: 0;
             display: flex;
@@ -15,7 +15,6 @@
             align-items: flex-start;
             min-height: 100vh;
         }
-
         .container {
             width: 90%;
             max-width: 450px;
@@ -26,11 +25,9 @@
             margin-top: 20px;
             text-align: center;
         }
-
         header {
             margin-bottom: 20px;
         }
-
         .main-title {
             font-size: 2.5em;
             font-weight: bold;
@@ -41,20 +38,17 @@
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
-
         #datetime {
             font-size: 0.9em;
             color: #666;
             margin-bottom: 15px;
         }
-
         .card {
             border: 1px solid #ddd;
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 20px;
         }
-
         .card-title {
             font-size: 1.5em;
             background-color: #ffcc66;
@@ -64,11 +58,9 @@
             color: #333;
             font-weight: bold;
         }
-
         .user-list-container {
             margin-top: 15px;
         }
-
         .user-item {
             display: block;
             border: 2px solid #ff6699;
@@ -81,34 +73,28 @@
             text-decoration: none;
             color: #333;
         }
-
         .user-item:hover {
             background-color: #f9f9f9;
         }
-
         .dashboard-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
         }
-
         .dashboard-table th, .dashboard-table td {
             border: 1px solid #ff6699;
             padding: 10px;
             text-align: center;
         }
-
         .dashboard-table th {
             background-color: #f2f2f2;
         }
-
         .monthly-revenue-section {
             margin-top: 20px;
             padding: 15px;
             background-color: #e6ffed;
             border-radius: 10px;
         }
-
         .withdraw-btn {
             background-color: #4CAF50;
             color: white;
@@ -119,11 +105,9 @@
             font-size: 1em;
             margin-top: 10px;
         }
-
         .withdraw-btn:hover {
             background-color: #45a049;
         }
-
         .withdraw-form-section {
             text-align: left;
             margin-top: 20px;
@@ -131,7 +115,6 @@
             border: 1px solid #ccc;
             border-radius: 10px;
         }
-
         .withdraw-form-section label,
         .withdraw-form-section input,
         .withdraw-form-section select {
@@ -139,14 +122,12 @@
             width: 100%;
             margin-bottom: 10px;
         }
-
         .withdraw-form-section input,
         .withdraw-form-section select {
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-
         .submit-btn {
             background-color: #008CBA;
             color: white;
@@ -158,18 +139,14 @@
             width: 100%;
             margin-top: 10px;
         }
-
         .submit-btn:hover {
             background-color: #007bb5;
         }
-
         .developer-info {
             font-size: 0.8em;
             color: #666;
             margin-top: 20px;
         }
-
-        /* পেজ ম্যানেজমেন্টের জন্য ডিসপ্লে ক্লাস */
         .page {
             display: none;
         }
@@ -179,6 +156,31 @@
     </style>
 </head>
 <body>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzaSJuMumdlp_ZzjKvatvGm_7XLxq3jFM",
+            authDomain: "link-click-work.firebaseapp.com",
+            projectId: "link-click-work",
+            databaseURL: "https://link-click-work-default-rtdb.asia-southeast1.firebasedatabase.app/", // এখানে আপনার Realtime Database URL থাকবে
+            storageBucket: "link-click-work.firebasestorage.app",
+            messagingSenderId: "1098565051426",
+            appId: "1:1098565051426:web:a99ee9186b0f481954167b",
+            measurementId: "G-PLHRG49TXJ"
+        };
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Firebase-এর জন্য গ্লোবাল ভ্যারিয়েবল
+        window.database = database;
+        window.ref = ref;
+        window.onValue = onValue;
+        window.set = set;
+        window.push = push;
+    </script>
+
     <div class="container">
         <header>
             <h1 class="main-title">LINK CLICK WORK</h1>
@@ -190,7 +192,7 @@
                 <div class="card">
                     <h2 class="card-title">User List</h2>
                     <div class="user-list-container" id="user-list">
-                        </div>
+                    </div>
                 </div>
             </main>
         </div>
@@ -209,7 +211,7 @@
                             </tr>
                         </thead>
                         <tbody id="data-table-body">
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
 
@@ -244,8 +246,6 @@
     </div>
 
     <script>
-        const SHEETSU_API_URL = "https://sheetdb.io/api/v1/k8tzqlcui8jh9"; 
-
         document.addEventListener('DOMContentLoaded', () => {
             const updateDateTime = () => {
                 const now = new Date();
@@ -256,19 +256,16 @@
             updateDateTime();
             setInterval(updateDateTime, 1000);
 
-            const loadData = async () => {
-                try {
-                    const usersResponse = await fetch(`${SHEETSU_API_URL}/users`);
-                    const usersData = await usersResponse.json();
-                    
-                    if (document.getElementById('user-list-page').classList.contains('active')) {
-                        populateUserList(usersData);
-                    }
-                } catch (error) {
-                    console.error("Error fetching data:", error);
-                    alert("Failed to load data.");
-                }
-            };
+            // Firebase থেকে ডেটা লোড করার জন্য onValue লিসেনার
+            const userRef = ref(database, 'users');
+            onValue(userRef, (snapshot) => {
+                const usersData = [];
+                snapshot.forEach(childSnapshot => {
+                    const user = childSnapshot.val();
+                    usersData.push(user);
+                });
+                populateUserList(usersData);
+            });
 
             const populateUserList = (usersData) => {
                 const userListContainer = document.getElementById('user-list');
@@ -296,7 +293,7 @@
                     return;
                 }
 
-                const userSpecificData = user.data ? JSON.parse(user.data) : [];
+                const userSpecificData = user.data ? user.data : [];
                 const dataTableBody = document.getElementById('data-table-body');
                 if (dataTableBody) {
                     dataTableBody.innerHTML = '';
@@ -350,31 +347,22 @@
                             const amount = parseFloat(document.getElementById('withdraw-amount').value);
                             const mobile = document.getElementById('mobile-number').value;
 
-                            const response = await fetch(`${SHEETSU_API_URL}/withdrawals`, {
-                                method: 'POST',
-                                body: JSON.stringify({
-                                    userId: userId,
-                                    amount: amount,
-                                    gateway: gateway,
-                                    mobile: mobile,
-                                    status: 'Pending',
-                                    date: now.toISOString().slice(0, 10)
-                                }),
-                                headers: { 'Content-Type': 'application/json' }
+                            const newWithdrawalRef = push(ref(database, 'withdrawals'));
+                            await set(newWithdrawalRef, {
+                                userId: userId,
+                                amount: amount,
+                                gateway: gateway,
+                                mobile: mobile,
+                                status: 'Pending',
+                                date: now.toISOString().slice(0, 10)
                             });
 
-                            if (response.ok) {
-                                alert('Withdrawal request submitted successfully!');
-                                withdrawForm.style.display = 'none';
-                            } else {
-                                alert('Failed to submit withdrawal request.');
-                            }
+                            alert('Withdrawal request submitted successfully!');
+                            withdrawForm.style.display = 'none';
                         });
                     }
                 }
             };
-
-            loadData();
         });
     </script>
 </body>
